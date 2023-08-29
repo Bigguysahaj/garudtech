@@ -1,7 +1,9 @@
-// import type {NextPage} from "next";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import Head from "next/head";
-// import { promises as fs } from "fs";
+import Modal from "./components/Modal";
+// import axios from "axios";
+
 import Image from "next/image";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -16,6 +18,17 @@ async function fileToBase64(file) {
 export default function Home() {
   const [prediction, setPrediction] = useState(null);
   const [error, setError] = useState(null);
+  const [apiKey, setApiKey] = useState(null);
+
+  useEffect(() => {
+    const modal = document.getElementById("modal");
+    modal.style.display = "block";
+
+    const key = sessionStorage.getItem("apiKey");
+    if (key) {
+      setApiKey(key);
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     
@@ -24,7 +37,8 @@ export default function Home() {
     const formDataObject = Object.fromEntries(
       formData.entries()
     )
-    const { prompt, img } = formDataObject;
+    const img = formDataObject.img;
+    const prompt = formDataObject.prompt;
 
     if (!img) {
       setError("Please select an image.");
@@ -35,6 +49,7 @@ export default function Home() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: apiKey,
       },
       body: JSON.stringify({
         prompt,
@@ -54,13 +69,16 @@ export default function Home() {
       prediction.status !== "failed"
     ) {
       await sleep(1000);
-      const response = await fetch("/api/predictions/" + prediction.id);
+      const response = await fetch("/api/predictions/" + prediction.id, {
+        headers: {
+          Authorization: apiKey,
+        },
+      });
       prediction = await response.json();
       if (response.status !== 200) {
         setError(prediction.detail);
         return;
       }
-      console.log({ prediction });
       setPrediction(prediction);
     }
 };
@@ -75,6 +93,10 @@ export default function Home() {
       <Head>
         <title>Garud tech</title>
       </Head>
+      <div>
+        <Modal onClose={setApiKey} />
+        {apiKey && <p>Your API key is: {apiKey}</p>}
+      </div>
       <form className="w-full flex" onSubmit={handleSubmit}>
         <div className="flex justify-content-space-between">
           <div>
