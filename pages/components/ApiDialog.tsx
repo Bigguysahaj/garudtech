@@ -31,6 +31,7 @@ const Modal = ({ onClose}) => {
         <Dialog.Description className="text-primary mt-[10px] mb-5 text-[15px] leading-normal">
         <span>Add your API key from</span>{" "}
           <Link href="https://replicate.com/account/api-tokens"
+          target="_blank"
           className="text-purple-400" 
           >
             replicate.com/account/api-tokens
