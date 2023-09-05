@@ -1,28 +1,38 @@
 import React, { useState } from "react";
+// import { useRouter } from 'next/router';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { Input } from "../../@/components/ui/input";
 import Link from "next/link";
 
-const Modal = ({ onClose}) => {
+const Modal = ({ onClose, onSubmit }) => {
   const [key, setKey] = useState(null);
+  // const router = useRouter();
 
   const handleChange = (e) => {
+    e.preventDefault();
     setKey(e.target.value);
+    // console.log(e.target.value);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    sessionStorage.setItem("apiKey", key);
-    process.env.API_KEY = key;
-    onClose(key);
-  }
+    console.log(key);
+    // router.push({
+    //   pathname: '/',
+    //   query: { apiKey },
+    // });
+    if (key) {
+      onSubmit(key);
+      onClose();
+    }
+  };
   
   return (
   <Dialog.Root>
     <Dialog.Trigger asChild>
       <button className="text-destructive shadow-blackA7 hover:bg-mauve3 inline-flex h-[35px] items-center justify-center rounded-[4px] bg-white px-[15px] font-medium leading-none shadow-[0_2px_10px] focus:shadow-[0_0_0_2px] focus:shadow-black focus:outline-none">
-        API
+        ADD API
       </button>
     </Dialog.Trigger>
     <Dialog.Portal>
@@ -34,32 +44,35 @@ const Modal = ({ onClose}) => {
           target="_blank"
           className="text-purple-400" 
           >
-            replicate.com/account/api-tokens
-            </Link>
+          replicate.com/account/api-tokens
+          </Link>
         </Dialog.Description>
-        <fieldset className="mb-[15px] flex items-center gap-5">
-          <Input
-            type="text"
-            placeholder="  Drop your API Key here"
-            value={key}
-            onChange={handleChange}
-          />
-        </fieldset>
-        <div className="mt-[25px] flex justify-end">
-          <Dialog.Close asChild>
-            <button  onClick={handleSubmit} className="bg-primary text-secondary hover:bg-green focus:shadow-green7 rounded-lg inline-flex h-[35px] items-center justify-center px-[15px] font-medium leading-none focus:shadow-[0_0_0_2px] focus:outline-none">
-              Add
-            </button>
-          </Dialog.Close>
-        </div>
-        <Dialog.Close asChild>
+        <form onSubmit={handleSubmit}>
+          <fieldset className="mb-[15px] flex items-center gap-5">
+            <Input
+              type="text"
+              placeholder="  Drop your API Key here"
+              value={key}
+              onChange={handleChange}
+            />
+          </fieldset>
+          <div className="mt-[25px] flex justify-end">
+            {/* <Dialog.Close asChild> */}
+              <button  type="submit" className="bg-primary text-secondary hover:bg-green focus:shadow-green7 rounded-lg inline-flex h-[35px] items-center justify-center px-[15px] font-medium leading-none focus:shadow-[0_0_0_2px] focus:outline-none">
+                Submit
+              </button>
+            {/* </Dialog.Close> */}
+          </div>
+        </form>
+        {/* <Dialog.Close asChild>
           <button
+            onClick={onClose}
             className="text-violet11 hover:bg-violet4 hover:font-bold focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none"
             aria-label="Close"
           >
             <Cross2Icon />
           </button>
-        </Dialog.Close>
+        </Dialog.Close> */}
       </Dialog.Content>
     </Dialog.Portal>
   </Dialog.Root>

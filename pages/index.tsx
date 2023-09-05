@@ -1,14 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect} from "react";
 import Head from "next/head";
 import { Textarea } from "../@/components/ui/textarea";
 import { Label } from "../@/components/ui/label";
 import { Input } from "../@/components/ui/input";
 import Image from "next/image";
-import { Dialog } from "@radix-ui/react-dialog";
+import { useRouter } from 'next/router';
 import { Button } from "../@/components/ui/button";
 import Modal from "./components/ApiDialog";
 
+
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+
+let apiKey: string | "";
 
 async function fileToBase64(file: File) {
   return new Promise<string>((resolve, reject) => {
@@ -22,21 +26,25 @@ async function fileToBase64(file: File) {
 export default function Home() {
   const [prediction, setPrediction] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(true);
 
-  // useEffect(() => {
-  //   const modal = document.getElementById("modal");
-  //   if (modal) {
-  //     modal.style.display = "block";
-  //   }
+  useEffect(() => {
+    const modal = document.getElementById('api');
+    if (modal) {
+      modal.style.display = 'block';
+    }
+  }, []);
 
-  //   const key = sessionStorage.getItem("apiKey");
-  //   if (key) {
-  //     setApiKey(key);
-  //   }
-  // }, []);
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSubmitApiKey = (key) => {
+    apiKey = key;
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const formDataObject = Object.fromEntries(formData.entries());
@@ -48,49 +56,59 @@ export default function Home() {
       return;
     }
 
-    const response = await fetch("/api/predictions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: apiKey || "",
-      },
-      body: JSON.stringify({
-        prompt,
-        img: await fileToBase64(img),
-      }),
-    });
-
-    let prediction = await response.json();
-    if (response.status !== 201) {
-      setError(prediction.detail);
-      return;
-    }
-    setPrediction(prediction);
-
-    while (
-      prediction.status !== "succeeded" &&
-      prediction.status !== "failed"
-    ) {
-      await sleep(1000);
-      const response = await fetch("/api/predictions/" + prediction.id, {
+    if(apiKey && /^r8_/.test(apiKey)) {
+      console.log(apiKey);
+      const response = await fetch("/api/predictions", {
+        method: "POST",
         headers: {
-          Authorization: apiKey || "",
+          "Content-Type": "application/json",
+          Authorization: apiKey,
         },
+        body: JSON.stringify({
+          prompt,
+          img: await fileToBase64(img),
+        }),
       });
-      prediction = await response.json();
-      if (response.status !== 200) {
+
+      let prediction = await response.json();
+      if (response.status !== 201) {
         setError(prediction.detail);
         return;
       }
       setPrediction(prediction);
+
+      while (
+        prediction.status !== "succeeded" &&
+        prediction.status !== "failed"
+      ) {
+        await sleep(2000);
+        const response = await fetch("/api/predictions/" + prediction.id, {
+          headers: {
+            Authorization: apiKey,
+          },
+        });
+        prediction = await response.json();
+        if (response.status !== 200) {
+          setError(prediction.detail);
+          return;
+        }
+        setPrediction(prediction);
+      }
+    }else{
+      setError("Please add correct api key");
+      return;
     }
-  };
+  }
 
   return (
     <div>
       <nav className="flex justify-content-center text-secondary-foreground">
         <h1 className="text-center font-bold text-2xl">GARUD 🦅</h1>
-        <Modal onClose={setApiKey} />
+        <div id="api" className="modal">
+            {isModalOpen && (
+            <Modal onClose={closeModal} onSubmit={handleSubmitApiKey} />
+          )}
+        </div>
       </nav>
       {/* </div> */}
       <div className="container max-w-2xl mx-auto p3 pt-[50px]">
@@ -109,29 +127,20 @@ export default function Home() {
               />
             </div>
             <div className="grid w-full gap-1.5 pl-[40px] shadow-lg" >
-              {/* <Label htmlFor="prompt" className="bold">Prompt</Label> */}
               <Textarea
                 className="border p-2 outline-none height-20vh"
                 style={{ height: "298px" }}
                 placeholder="Ask questions specific to your picture, garud shall answer!"
-                id="prompt"
+                name="prompt"
+                // id="prompt"
               />
               <p className="text-sm text-muted-foreground">
                 Make sure to put add your api token, click on the api button above.
               </p>
             </div>
-            {/* <div>
-              <label htmlFor="prompt">prompt</label>
-              <Textarea
-                name="prompt"
-                variant="outline"
-                // className="border border-gray-400 rounded-lg p-2 outline-none"
-                placeholder="Drop your image here, and let garud tell you what he sees! "
-              />
-            </div> */}
           </div>
-          <Button className="button" type="submit" variant="outline" disabled={!apiKey}>
 
+          <Button className="button" type="submit" variant="outline" disabled={!apiKey}>
             G0!
           </Button>
         </form>
