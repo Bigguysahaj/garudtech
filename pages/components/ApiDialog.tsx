@@ -39,7 +39,7 @@ const Modal = ({ onClose, onSubmit }) => {
     </Dialog.Trigger>
     <Dialog.Portal>
       <Dialog.Overlay className="bg-blackA9 data-[state=open]:animate-overlayShow fixed inset-0 backdrop-blur-[5px]" />
-      <Dialog.Content className="data-[state=open]:animate-contentShow fixed top-[50%] left-[50%] max-h-[85vh] w-[90vw] max-w-[450px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-secondary p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none shadow-md">
+      <Dialog.Content className="data-[state=open]:animate-contentShow fixed top-[50%] left-[50%] max-h-[85vh] w-[90vw] max-w-[600x] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-secondary p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none shadow-md">
         <Dialog.Description className="text-primary mt-[10px] mb-5 text-[15px] leading-normal">
         <span>Add your API key from</span>{" "}
           <Link href="https://replicate.com/account/api-tokens"
@@ -50,10 +50,10 @@ const Modal = ({ onClose, onSubmit }) => {
           </Link>
         </Dialog.Description>
         <form onSubmit={handleSubmit}>
-          <fieldset className="mb-[15px] flex items-center gap-5">
+          <fieldset className="mb-[25px] flex items-center gap-5">
             <Input
               type="text"
-              placeholder="  r8_XswhWXgeKHsPuudlzeeF002fsdkfDF32"
+              placeholder="   Add something like this : `r8_XswhWXgeKHsPuudlzeeF002fsdkfDF32` "
               value={key}
               onChange={handleChange}
             />
