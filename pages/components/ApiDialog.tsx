@@ -22,9 +22,11 @@ const Modal = ({ onClose, onSubmit }) => {
     //   pathname: '/',
     //   query: { apiKey },
     // });
-    if (key) {
+    if(key && /^r8_/.test(key)){
       onSubmit(key);
       onClose();
+    }else{
+      alert("Please enter a valid API key");
     }
   };
   
