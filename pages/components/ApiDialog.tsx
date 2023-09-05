@@ -53,7 +53,7 @@ const Modal = ({ onClose, onSubmit }) => {
           <fieldset className="mb-[15px] flex items-center gap-5">
             <Input
               type="text"
-              placeholder="r8_XswhWXgeKHsPuudlzeeF002fsdkfDF32"
+              placeholder="  r8_XswhWXgeKHsPuudlzeeF002fsdkfDF32"
               value={key}
               onChange={handleChange}
             />
