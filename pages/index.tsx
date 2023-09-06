@@ -104,7 +104,7 @@ export default function Home() {
     <div>
       <nav className="flex justify-content-center text-secondary-foreground">
         <h1 className="text-center font-bold text-2xl">GARUD 🦅</h1>
-        <div id="api" className="modal">
+        <div id="api" className="modal px-4">
             {isModalOpen && (
             <Modal onClose={closeModal} onSubmit={handleSubmitApiKey} />
           )}

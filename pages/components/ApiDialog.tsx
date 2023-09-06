@@ -33,8 +33,8 @@ const Modal = ({ onClose, onSubmit }) => {
   return (
   <Dialog.Root>
     <Dialog.Trigger asChild>
-      <button className="text-destructive shadow-blackA7 hover:bg-mauve3 inline-flex h-[35px] items-center justify-center rounded-[4px] bg-white px-[15px] font-medium leading-none shadow-[0_2px_10px] focus:shadow-[0_0_0_2px] focus:shadow-black focus:outline-none">
-        ADD API
+      <button className="text-destructive bg-destructive-foreground shadow:blackA7 hover:bg-destructive  inline-flex h-[36px] items-center justify-center rounded-[4px] bg-white px-[15px] font-medium leading-none shadow-[0_2px_10px] focus:shadow-[0_0_0_2px] focus:shadow-white focus:outline-none">
+        ADD API HERE TO PROCEED
       </button>
     </Dialog.Trigger>
     <Dialog.Portal>
@@ -43,8 +43,8 @@ const Modal = ({ onClose, onSubmit }) => {
         <Dialog.Description className="text-primary mt-[10px] mb-5 text-[15px] leading-normal">
         <span>Add your API key from</span>{" "}
           <Link href="https://replicate.com/account/api-tokens"
-          target="_blank"
-          className="text-purple-400" 
+          target="_blank" 
+          className="text-purple-400 hover:text-purple-500 hover:font-bold hover:underline cursor-pointer" 
           >
           replicate.com/account/api-tokens
           </Link>
