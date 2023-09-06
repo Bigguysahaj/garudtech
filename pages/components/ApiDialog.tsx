@@ -33,7 +33,7 @@ const Modal = ({ onClose, onSubmit }) => {
   return (
   <Dialog.Root>
     <Dialog.Trigger asChild>
-      <button className="text-destructive bg-destructive-foreground shadow:blackA7 hover:bg-destructive  inline-flex h-[36px] items-center justify-center rounded-[4px] bg-white px-[15px] font-medium leading-none shadow-[0_2px_10px] focus:shadow-[0_0_0_2px] focus:shadow-white focus:outline-none">
+      <button className="text-destructive bg-destructive-foreground shadow-blackA7 hover:bg-destructive  inline-flex h-[36px] items-center justify-center rounded-[4px] bg-white px-[15px] font-medium leading-none shadow-[0_2px_10px] focus:shadow-[0_0_0_2px] focus:shadow-white focus:outline-none">
         ADD API HERE TO PROCEED
       </button>
     </Dialog.Trigger>

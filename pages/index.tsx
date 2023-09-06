@@ -23,17 +23,31 @@ async function fileToBase64(file: File) {
   });
 }
 
-export default function Home() {
+export default function Home(): JSX.Element {
   const [prediction, setPrediction] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(true);
+  const [image, setImage] = useState<File | null>(null);
 
-  useEffect(() => {
-    const modal = document.getElementById('api');
-    if (modal) {
-      modal.style.display = 'block';
-    }
-  }, []);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const file = e.target.files?.[0];
+
+    if(file) {
+      if(file.size > 1024*1024){
+        alert("File size should be less than 1MB");
+        e.target.value = "";
+      } else {
+        setImage(file);
+      }
+    }};
+
+  // useEffect(() => {
+  //   const modal = document.getElementById('api');
+  //   if (modal) {
+  //     modal.style.display = 'block';
+  //   }
+  // }, []);
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -41,6 +55,7 @@ export default function Home() {
 
   const handleSubmitApiKey = (key) => {
     apiKey = key;
+    sessionStorage.setItem('key', key);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -55,6 +70,11 @@ export default function Home() {
       setError("Please select an image.");
       return;
     }
+    if(sessionStorage.getItem('key') !== null){ 
+      apiKey = sessionStorage.getItem('key');
+      console.log("done with api key");
+    }else{ 
+      console.log("no api key"); }
 
     if(apiKey && /^r8_/.test(apiKey)) {
       console.log(apiKey);
@@ -102,7 +122,7 @@ export default function Home() {
 
   return (
     <div>
-      <nav className="flex justify-content-center text-secondary-foreground">
+      <nav className="flex justify-content-space-around text-secondary-foreground  ">
         <h1 className="text-center font-bold text-2xl">GARUD 🦅</h1>
         <div id="api" className="modal px-4">
             {isModalOpen && (
@@ -123,8 +143,23 @@ export default function Home() {
                 type="file"
                 className="flex-grow mr-2 "
                 name="img"
+                onChange={handleFileChange}
+                accept="image/*"
                 placeholder="Drop your image here, and let garud tell you what he sees! "
               />
+
+            {image && (
+                    <Image
+                      src={URL.createObjectURL(image)}
+                      alt="Uploaded"
+                      width={0}
+                      height={0}
+                      sizes="100vw"
+                      style={{ width: '100%', height: 'auto' }}
+                      className="max-w-full h-auto max-h-80 mx-auto my-2"
+                    />
+                  )}
+
             </div>
             <div className="grid w-full gap-1.5 pl-[40px] shadow-lg" >
               <Textarea
@@ -134,27 +169,26 @@ export default function Home() {
                 name="prompt"
                 // id="prompt"
               />
-              <p className="text-sm text-muted-foreground">
-                Make sure to put add your api token, click on the api button above.
-              </p>
+              {error && <div>{error}</div>}
+
+              {prediction && (
+                <div className="py-10">
+                  {prediction.output && <div>{prediction.output}</div>}
+                  <p className="text-sm text-muted-foreground opacity-50 pt-10">
+                    status: {prediction.status}
+                  </p>
+                </div>
+              )}
+                <p className="text-sm text-muted-foreground">
+                  Make sure to put add your API token, click on the API button above.
+                </p>
             </div>
           </div>
 
-          <Button className="button" type="submit" variant="outline" disabled={!apiKey}>
+          <Button className="button cursor-pointer" type="submit" variant="outline" disabled={!apiKey} >
             G0!
           </Button>
         </form>
-
-        {error && <div>{error}</div>}
-
-        {prediction && (
-          <div className="py-10">
-            {prediction.output && <div>{prediction.output}</div>}
-            <p className="text-sm opacity-50 pt-10">
-              status: {prediction.status}
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );
