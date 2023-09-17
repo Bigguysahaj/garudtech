@@ -17,9 +17,9 @@ export default async function handler(req, res) {
   }
 
   const prediction = await replicate.predictions.create({
-    version: "c4c54e3c8c97cd50c2d2fec9be3b6065563ccf7d43787fb99f84151b867178fe",
+    version: "b96a2f33cc8e4b0aa23eacfce731b9c41a7d9466d9ed4e167375587b54db9423",
     
-    input: {prompt, img},
+    input: {image : img, prompt},
 
   });
 

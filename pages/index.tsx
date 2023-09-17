@@ -7,6 +7,12 @@ import Image from "next/image";
 import { useRouter } from 'next/router';
 import { Button } from "../@/components/ui/button";
 import Modal from "./components/ApiDialog";
+// import Dropzone from "./components/dropzone";
+import dynamic from 'next/dynamic'
+
+const Dropzone = dynamic(() => import('./components/dropzone'), {
+  ssr: false
+})
 
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -25,10 +31,47 @@ async function fileToBase64(file: File) {
 
 export default function Home(): JSX.Element {
   const [prediction, setPrediction] = useState<any>(null);
+  // const [formData, setFormData] = useState<FormData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(true);
   const [image, setImage] = useState<File | null>(null);
+  const [video, setVideo] = useState<File>();
 
+  //   const handleFileUpload = async (e) => {
+  //     e.preventDefault();
+  //     const file = e.target.files[0];
+  //     // console.log("hurry");
+
+  //     if (file) {
+  //       setVideo(file);
+
+  //     try {
+
+  //       console.log("nohurry");
+
+  //       const formData = new FormData();
+  //       formData.append('video', file);
+
+  //         const response = await fetch('/api/upload', {
+  //           method: 'POST',
+  //           body: formData,
+  //           headers: {
+  //             'Content-Type': 'multipart/form-data',
+  //           },
+  //         });
+
+  //         if (response.ok) {
+  //           console.log('Frames extracted successfully');
+  //         } else {
+  //           console.error('Frame extraction failed');
+  //         }
+  //     } catch (error) {
+  //       console.error('Error getting video:', error);
+  //     }
+  //   }
+  // };
+    
+  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     const file = e.target.files?.[0];
@@ -38,8 +81,13 @@ export default function Home(): JSX.Element {
         alert("File size should be less than 1MB");
         e.target.value = "";
       } else {
+        // const newFormData = new FormData();
+        // newFormData.append("img", file);
+        // setFormData(newFormData);
         setImage(file);
       }
+
+      
     }};
 
   // useEffect(() => {
@@ -59,15 +107,24 @@ export default function Home(): JSX.Element {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    
+
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    
+    // if (!formData || formData.getAll("img").length === 0) {
+    //   setError("Please select an image.");
+    //   return;
+    // }
+    
+    console.log(formData);
+    console.log(image);
     const formDataObject = Object.fromEntries(formData.entries());
     const img = formDataObject.img as File;
-    const prompt = formDataObject.prompt as string;
+    let prompt = formDataObject.prompt as string;
+    prompt = "The guy with red hoodie has a gun, and the car in front is trying to flee. Later on the car scares the red hoodie guy off by speeding." + prompt;
 
     if (!img) {
-      setError("Please select an image.");
+      setError("Please select an image. ");
       return;
     }
     if(sessionStorage.getItem('key') !== null){ 
@@ -125,6 +182,7 @@ export default function Home(): JSX.Element {
       <nav className="flex justify-content-space-around text-secondary-foreground  ">
         <h1 className="text-center font-bold text-2xl">GARUD 🦅</h1>
         <div id="api" className="modal px-4">
+        {/* <VideoFrameCapture /> */}
             {isModalOpen && (
             <Modal onClose={closeModal} onSubmit={handleSubmitApiKey} />
           )}
@@ -139,15 +197,48 @@ export default function Home(): JSX.Element {
           <div className="flex justify-content-space-between">
 
             <div className="grid w-full gap-1.5 border-sm border-gray-300 shadow-sm rounded-sm ">
+          
+              <Dropzone frameInterval={3}  />
+{/* 
+              <Input
+              type="file"
+              className="flex-grow mr-2 "
+              name="video"
+              onChange={handleFileUpload}
+              accept="video/*"
+            /> */}
+
               <Input
                 type="file"
-                className="flex-grow mr-2 "
+                className="flex-grow mr-2"
                 name="img"
                 onChange={handleFileChange}
                 accept="image/*"
-                placeholder="Drop your image here, and let garud tell you what he sees! "
+                placeholder="Drop your image here, and let Garud tell you what he sees!"
+                style={{ opacity: 0, border: 'none' }}
               />
+            
+            {/* {image && (
+              // <div></div>
+              <Image
+                src={URL.createObjectURL(image)}
+                alt="Uploaded"
+                width={0}
+                height={0}
+                sizes="100vw"
+                style={{ width: '100%', height: 'auto' }}
+                className="max-w-full h-auto max-h-80 mx-auto my-2"
+              />
+            )} */}
 
+            {/* <Input
+              type="file"
+              className="flex-grow mr-2 "
+              name="img"
+              onChange={handleFileChange}
+              accept="image/*"
+              placeholder="Drop your image here, and let garud tell you what he sees! "
+            />
             {image && (
                     <Image
                       src={URL.createObjectURL(image)}
@@ -158,7 +249,13 @@ export default function Home(): JSX.Element {
                       style={{ width: '100%', height: 'auto' }}
                       className="max-w-full h-auto max-h-80 mx-auto my-2"
                     />
-                  )}
+                  )}  */}
+{/*             
+            { video && <video
+              controls
+              width="250"
+              src={URL.createObjectURL(video)}>
+              </video>} */}
 
             </div>
             <div className="grid w-full gap-1.5 pl-[40px] shadow-lg" >
@@ -185,7 +282,7 @@ export default function Home(): JSX.Element {
             </div>
           </div>
 
-          <Button className="button cursor-pointer" type="submit" variant="outline" disabled={!apiKey} >
+          <Button className="button cursor-pointer py-[148px]" type="submit" variant="outline" disabled={!apiKey} >
             G0!
           </Button>
         </form>
