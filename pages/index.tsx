@@ -129,54 +129,52 @@ export default function Home(): JSX.Element {
     }
     if(sessionStorage.getItem('key') !== null){ 
       apiKey = sessionStorage.getItem('key');
-      console.log("done with api key");
     }else{ 
-      console.log("no api key"); }
 
-    if(apiKey && /^r8_/.test(apiKey)) {
-      console.log(apiKey);
-      const response = await fetch("/api/predictions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: apiKey,
-        },
-        body: JSON.stringify({
-          prompt,
-          img: await fileToBase64(img),
-        }),
-      });
-
-      let prediction = await response.json();
-      if (response.status !== 201) {
-        setError(prediction.detail);
-        return;
-      }
-      setPrediction(prediction);
-
-      while (
-        prediction.status !== "succeeded" &&
-        prediction.status !== "failed"
-      ) {
-        await sleep(2000);
-        const response = await fetch("/api/predictions/" + prediction.id, {
+      if(apiKey && /^r8_/.test(apiKey)) {
+        console.log(apiKey);
+        const response = await fetch("/api/predictions", {
+          method: "POST",
           headers: {
+            "Content-Type": "application/json",
             Authorization: apiKey,
           },
+          body: JSON.stringify({
+            prompt,
+            img: await fileToBase64(img),
+          }),
         });
-        prediction = await response.json();
-        if (response.status !== 200) {
+
+        let prediction = await response.json();
+        if (response.status !== 201) {
           setError(prediction.detail);
           return;
         }
         setPrediction(prediction);
+
+        while (
+          prediction.status !== "succeeded" &&
+          prediction.status !== "failed"
+        ) {
+          await sleep(2000);
+          const response = await fetch("/api/predictions/" + prediction.id, {
+            headers: {
+              Authorization: apiKey,
+            },
+          });
+          prediction = await response.json();
+          if (response.status !== 200) {
+            setError(prediction.detail);
+            return;
+          }
+          setPrediction(prediction);
+        }
+      }else{
+        setError("Please add correct api key");
+        return;
       }
-    }else{
-      setError("Please add correct api key");
-      return;
     }
   }
-
   return (
     <div>
       <nav className="flex justify-content-space-around text-secondary-foreground  ">

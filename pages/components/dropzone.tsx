@@ -2,39 +2,63 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDropzone from 'react-dropzone';
 // import fs from 'fs';
 import path from 'path';
-// import loadFfmpeg from '../utils/load-ffmpeg';
-import { FFmpeg } from '@ffmpeg/ffmpeg'
-import { toBlobURL } from '@ffmpeg/util'
+
+// import { FFmpeg } from '@ffmpeg/ffmpeg'
+// import { toBlobURL } from '@ffmpeg/util'
 
 interface DropzoneProps {
     frameInterval: number;
     }
 
 export default function Dropzone({ frameInterval }: DropzoneProps) {
-  const [is_hover, setIsHover] = useState(false);
+
+  // useEffect(() => {
+  //   import('@ffmpeg/ffmpeg').then((ffmpegModule) => {
+  //     const { FFmpeg } = ffmpegModule;
+  //   });
+  // }, []);
+
+  // useEffect(() => {
+  //   import('@ffmpeg/util').then((ffmpegModule) => {
+  //     const { toBlobURL } = ffmpegModule;
+  //   });
+  // }, []);
+
+    
+  const [is_hover, setIsHover] = useState<Boolean>(false);
   const [video, setVideo] = useState([]);
-  const [loaded, setLoaded] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const ffmpegRef = useRef(new FFmpeg())
+  const [loaded, setLoaded] = useState<Boolean>(false)
+  const [isLoading, setIsLoading] = useState<Boolean>(false)
+  const ffmpegRef = useRef(null); 
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const messageRef = useRef<HTMLParagraphElement | null>(null)
 
+    useEffect(() => {
+    import('@ffmpeg/ffmpeg').then((ffmpegModule) => {
+      setIsLoading(true);
+      const { FFmpeg } = ffmpegModule;
+      ffmpegRef.current = new FFmpeg();
+    });
+  }, []);
+
   useEffect(() => {
-      const load = async () => {
-          setIsLoading(true)
-          const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.2/dist/umd'
-          const ffmpeg = ffmpegRef.current
-        ffmpeg.on('log', ({ message }) => {
-        if (messageRef.current) messageRef.current.innerHTML = message
-        })
-        await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm')
-        })
-        setLoaded(true)
-        setIsLoading(false)
-    }
-    load();
+      import('@ffmpeg/util').then((utilModule) => {
+        const { toBlobURL } = utilModule;
+        const load = async () => {
+            const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.2/dist/umd'
+            const ffmpeg = ffmpegRef.current
+          ffmpeg.on('log', ({ message }) => {
+          if (messageRef.current) messageRef.current.innerHTML = message
+          })
+          await ffmpeg.load({
+          coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+          wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm')
+          })
+          setLoaded(true)
+          setIsLoading(false)
+        }
+        load();
+      });
     }, [])
 
   const handleUpload = async (uploadedvideo) => {
