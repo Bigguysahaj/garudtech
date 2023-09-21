@@ -91,12 +91,27 @@ export default function Dropzone({ frameInterval }: DropzoneProps) {
       
       const frameDataArray = [];
 
-      for (let i = 1; i <= 5; i++) {
+      for (let i = 1; i <= 4; i++) {
         const frameData = await ffmpeg.readFile(`frame-${i.toString().padStart(3, '0')}.png`);
         frameDataArray.push(frameData);
       }
 
-      console.log(frameDataArray);
+      const frameDataArrayString = JSON.stringify(frameDataArray);
+
+      const response = await fetch('/api/collage', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ frameDataArrayString }),
+      });
+
+      if (response.ok) {
+        const { collageData } = await response.json();
+        // Do something with the collageData received from the backend.
+      } else {
+        console.error('Failed to send data to the backend.');
+      }
 
 
       // const frameData = await ffmpeg.readFile("frame-001.png");
