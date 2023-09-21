@@ -3,9 +3,6 @@ import ReactDropzone from 'react-dropzone';
 // import fs from 'fs';
 import path from 'path';
 
-// import { FFmpeg } from '@ffmpeg/ffmpeg'
-// import { toBlobURL } from '@ffmpeg/util'
-
 interface DropzoneProps {
     frameInterval: number;
     }
@@ -32,22 +29,18 @@ export default function Dropzone({ frameInterval }: DropzoneProps) {
   const ffmpegRef = useRef(null); 
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const messageRef = useRef<HTMLParagraphElement | null>(null)
-
-    useEffect(() => {
+  
+  useEffect(() => {
     import('@ffmpeg/ffmpeg').then((ffmpegModule) => {
       setIsLoading(true);
       const { FFmpeg } = ffmpegModule;
       ffmpegRef.current = new FFmpeg();
-    });
-  }, []);
-
-  useEffect(() => {
       import('@ffmpeg/util').then((utilModule) => {
         const { toBlobURL } = utilModule;
         const load = async () => {
             const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.2/dist/umd'
             const ffmpeg = ffmpegRef.current
-          ffmpeg.on('log', ({ message }) => {
+          ffmpeg.on("log", ({ message }) => {
           if (messageRef.current) messageRef.current.innerHTML = message
           })
           await ffmpeg.load({
@@ -59,6 +52,7 @@ export default function Dropzone({ frameInterval }: DropzoneProps) {
         }
         load();
       });
+    });
     }, [])
 
   const handleUpload = async (uploadedvideo) => {
@@ -76,34 +70,49 @@ export default function Dropzone({ frameInterval }: DropzoneProps) {
     // }
 
     console.log("videoPath:", videoPath);
-    console.log("outputFolder:",outputFolder);
-    captureFrames(videoPath);
+    captureFrames(videoPath, outputFolder);
     // console.log('Frames captured:', framePaths);
   };
 
-  const captureFrames = async (videoPath: string) => {
+  const captureFrames = async (videoPath: string, outputFolder) => {
     if (!ffmpegRef.current) return [];
-    
+
     try {
       const ffmpeg = ffmpegRef.current;
       await ffmpeg.writeFile('input.mp4', await fetchFile(videoPath));
+      console.log(ffmpeg);
       
       await ffmpeg.exec([
         '-i', 'input.mp4',
         '-vf', `fps=1/${frameInterval}`,
-        "frame1.png",
+        `frame-%03d.png`,
       ]);
+
       
-      const frameData = await ffmpeg.readFile('frame1.png');
-      console.log("yo");
-      const frameBlob = new Blob([frameData], { type: 'image/png' }); 
-      const frameFormData = new FormData();
-      frameFormData.append('frame', frameBlob, 'frame1.png');
-  
-      // Send the frame data to the API route
+      const frameDataArray = [];
+
+      for (let i = 1; i <= 5; i++) {
+        const frameData = await ffmpeg.readFile(`frame-${i.toString().padStart(3, '0')}.png`);
+        frameDataArray.push(frameData);
+      }
+
+      console.log(frameDataArray);
+
+
+      // const frameData = await ffmpeg.readFile("frame-001.png");
+      // const frameBlob = new Blob([frameData], { type: 'image/png' }); 
+      // const frameFormData = new FormData();
+      // frameFormData.append('frame', frameBlob, 'frame1.png');
+      // console.log(frameFormData);
+      // console.log("frame Data" , frameData);
+      // const dataUrl = URL.createObjectURL(frameBlob);
+      // console.log("dataUrl", dataUrl);
+
+
       // const response = await fetch('/api/upload', {
       //   method: 'POST',
       //   body: frameFormData,
+
       // });
   
       // if (response.ok) {
