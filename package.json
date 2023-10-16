@@ -13,7 +13,7 @@
     "@ffmpeg/core": "^0.12.3",
     "@ffmpeg/ffmpeg": "^0.12.6",
     "@ffmpeg/util": "^0.12.1",
-    "@next/font": "13.4.6",
+    "@next/font": "13.5.5",
     "@radix-ui/colors": "^2.1.0",
     "@radix-ui/react-alert-dialog": "^1.0.4",
     "@radix-ui/react-dialog": "^1.0.4",
